@@ -1,7 +1,7 @@
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import PostForm
 from .models import Post, Group, User
@@ -67,7 +67,6 @@ def post_detail(request, post_id):
     return render(request, 'posts/post_detail.html', context)
 
 
-
 @login_required
 def post_create(request):
     form = PostForm(request.POST or None)
@@ -77,27 +76,22 @@ def post_create(request):
     post.author = request.user
     post.save()
     return HttpResponseRedirect(reverse('posts:profile',
-    kwargs={'username': request.user}))
+                                kwargs={'username': request.user}))
 
 
 @login_required
 def post_edit(request, post_id):
     is_edit = True
-    post = get_object_or_404(Post,
-                              id=post_id)
+    post = get_object_or_404(Post, id=post_id)
     if post.author == request.user:
         form = PostForm(request.POST or None, instance=post)
         if form.is_valid():
             post = form.save()
             return HttpResponseRedirect(reverse('posts:post_detail',
-    kwargs={'post_id': post_id}))
+                                        kwargs={'post_id': post_id}))
         form = PostForm(instance=post)
-        return render(request, 'posts/create_post.html', 
+        return render(request, 'posts/create_post.html',
                       {'form': form, 'is_edit': is_edit, 'post': post})
     else:
         return HttpResponseRedirect(reverse('posts:profile',
-    kwargs={'username': request.user}))
-
-        
-
-      
+                                    kwargs={'username': request.user}))
