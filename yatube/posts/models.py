@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from django import forms
-from django.forms import ModelForm
 
 User = get_user_model()
 
@@ -34,9 +32,6 @@ class Post(models.Model):
                               related_name='posts'
                               )
 
-        
-        
-    
     class Meta:
         ordering = ['-pub_date']
 

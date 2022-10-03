@@ -11,7 +11,7 @@ TEN = 10
 
 def index(request):
     posts = Post.objects.all()
-    paginator = Paginator(posts, 10)
+    paginator = Paginator(posts, TEN)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
@@ -22,7 +22,7 @@ def index(request):
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    paginator = Paginator(group.posts.all(), 10)
+    paginator = Paginator(group.posts.all(), TEN)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     posts = group.posts.all()[:TEN]
@@ -81,15 +81,16 @@ def post_create(request):
 
 
 @login_required
-def post_edit(request, username, post_id):
+def post_edit(request, post_id):
     is_edit = True
-    post = get_object_or_404(Post, author__username=username,
+    post = get_object_or_404(Post,
                               id=post_id)
     if post.author == request.user:
         form = PostForm(request.POST or None, instance=post)
         if form.is_valid():
             post = form.save()
-            return redirect('posts:profile', username, post_id)
+            return HttpResponseRedirect(reverse('posts:post_detail',
+    kwargs={'post_id': post_id}))
         form = PostForm(instance=post)
         return render(request, 'posts/create_post.html', 
                       {'form': form, 'is_edit': is_edit, 'post': post})

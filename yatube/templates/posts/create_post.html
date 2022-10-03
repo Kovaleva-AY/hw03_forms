@@ -3,7 +3,6 @@
 {% block header %}Добавление новой записи{% endblock %}
 {% block content %}
 {% load user_filters %}
-
 <div class="row justify-content-center">
     <div class="col-md-8 p-5">
         <div class="card">
@@ -17,10 +16,8 @@
                 {% endfor %}
           {% endif %}
                 <div class="card-body">
-                  <form method="post" action="{% if is_edit %}{% url 'posts:post_edit' post.author.username post.id %}{% else %}{% url 'posts:post_create' %}{% endif %}">
+                  <form method="post" action="{% if is_edit %}{% url 'posts:post_edit' post.id %}{% else %}{% url 'posts:post_create' %}{% endif %}">
                 {% csrf_token %} 
-                    
-
                     {% for field in form %}
                         <div class="form-group row" aria-required={% if field.field.required %}"true"{% else %}"false"{% endif %}>
                                 <label for="{{ field.id_for_label }}" class="col-md-4 col-form-label text-md-right">{{ field.label }}{% if field.field.required %}<span class="required">*</span>{% endif %}</label>
@@ -33,7 +30,6 @@
                                 </div>
                         </div>
                     {% endfor %}
-
                     <div class="col-md-6 offset-md-4">
                                {% if is_edit %}
                                Редактировать запись
@@ -49,9 +45,8 @@
                               </button>
                     </div>
                 </form>
-            </div> <!-- card body -->
-        </div> <!-- card -->
-    </div> <!-- col -->
-</div> <!-- row -->
-
+            </div> 
+        </div> 
+    </div> 
+</div> 
 {% endblock %}

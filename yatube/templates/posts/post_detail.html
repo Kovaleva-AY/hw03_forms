@@ -4,7 +4,6 @@
 {% endblock %} 
   {% block content %}
   <head>
-    <!-- Подключены иконки, стили и заполенены мета теги -->
     <title><!-- Первые 30 букв поста --></title>
   </head>
   <body>
@@ -13,11 +12,10 @@
         <aside class="col-12 col-md-3">
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
-              Дата публикации:  {{ post.pub_date|date:"d E Y" }} <!-- 31 июля 1854 --> 
+              Дата публикации:  {{ post.pub_date|date:"d E Y" }} 
             </li>
-            <!-- если у поста есть группа -->   
             <li class="list-group-item">
-              Группа: {{ post.group.title }}<!-- Название группы -->
+              Группа: {{ post.group.title }}
               {% if post.group %}
               <a href="{% url 'posts:group_posts' post.group.slug %}">
               {% endif %}
@@ -41,11 +39,11 @@
           <p>
             {{post.text}} 
           </p>
-           <!-- эта кнопка видна только автору -->
-           <a class="btn btn-primary" href="{% url 'posts:post_edit' post.username.id.edit %}">
+           <a class="btn btn-primary" href="{% url 'posts:post_edit' post.id %}">
             редактировать запись
           </a>  
         </article>
       </div> 
     </main>
     {% endblock %}
+  </body>
