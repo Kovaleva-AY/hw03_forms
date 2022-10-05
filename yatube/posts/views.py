@@ -1,67 +1,48 @@
-from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import PostForm
 from .models import Post, Group, User
 
-TEN = 10
+from .utils import get_page_context
+
+SHORT_TEXT = 30
 
 
 def index(request):
     posts = Post.objects.all()
-    paginator = Paginator(posts, TEN)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    context = {
-        'page_obj': page_obj
-    }
+    context = get_page_context(request, posts)
     return render(request, 'posts/index.html', context)
 
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    paginator = Paginator(group.posts.all(), TEN)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    posts = group.posts.all()[:TEN]
     context = {
         'group': group,
-        'paginator': paginator,
-        'page_number': page_number,
-        'page_obj': page_obj,
-        'posts': posts,
     }
+    context.update(get_page_context(request, group.posts.all()))
     return render(request, 'posts/group_list.html', context)
 
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    posts = Post.objects.all()
-    author_total_posts = Post.objects.filter(author_id=author.pk).__len__
-    paginator = Paginator(author.posts.all(), 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    author_total_posts = Post.objects.filter(author_id=author.pk).count()
     context = {
         'author': author,
-        'paginator': paginator,
-        'page_number': page_number,
-        'page_obj': page_obj,
-        'posts': posts,
         'author_total_posts': author_total_posts,
     }
+    context.update(get_page_context(request, author.posts.all()))
     return render(request, 'posts/profile.html', context)
 
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-    posts = Post.objects.all()
-    author_total_posts = Post.objects.filter(author_id=post.author.pk).__len__
+    author_total_posts = Post.objects.filter(author_id=post.author.pk).count()
+    title = 'Пост: ' + post.text[:SHORT_TEXT]
     context = {
-        'posts': posts,
         'post': post,
         'author_total_posts': author_total_posts,
+        'title': title
 
     }
     return render(request, 'posts/post_detail.html', context)
@@ -75,8 +56,8 @@ def post_create(request):
     post = form.save(commit=False)
     post.author = request.user
     post.save()
-    return HttpResponseRedirect(reverse('posts:profile',
-                                kwargs={'username': request.user}))
+    return redirect(reverse('posts:profile',
+                            kwargs={'username': request.user}))
 
 
 @login_required
@@ -87,11 +68,11 @@ def post_edit(request, post_id):
         form = PostForm(request.POST or None, instance=post)
         if form.is_valid():
             post = form.save()
-            return HttpResponseRedirect(reverse('posts:post_detail',
-                                        kwargs={'post_id': post_id}))
+            return redirect(reverse('posts:post_detail',
+                                    kwargs={'post_id': post_id}))
         form = PostForm(instance=post)
         return render(request, 'posts/create_post.html',
                       {'form': form, 'is_edit': is_edit, 'post': post})
     else:
-        return HttpResponseRedirect(reverse('posts:profile',
-                                    kwargs={'username': request.user}))
+        return redirect(reverse('posts:profile',
+                                kwargs={'username': request.user}))

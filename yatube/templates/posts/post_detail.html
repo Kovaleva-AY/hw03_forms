@@ -2,12 +2,10 @@
 {% block header %}
  {{ group }}
 {% endblock %} 
-  {% block content %}
-  <head>
-    <title><!-- Первые 30 букв поста --></title>
-  </head>
-  <body>
-    <main>
+{% block content %}
+{% block title %}
+{{title}}
+{% endblock %}
       <div class="row">
         <aside class="col-12 col-md-3">
           <ul class="list-group list-group-flush">
@@ -44,6 +42,5 @@
           </a>  
         </article>
       </div> 
-    </main>
     {% endblock %}
-  </body>
+  
