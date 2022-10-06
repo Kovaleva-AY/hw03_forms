@@ -7,11 +7,12 @@ from .models import Post, Group, User
 from .utils import get_page_context
 
 SHORT_TEXT = 30
+POSTS_NUMBER = 10
 
 
 def index(request):
     posts = Post.objects.all()
-    context = get_page_context(request, posts)
+    context = get_page_context(request, posts, POSTS_NUMBER)
     return render(request, 'posts/index.html', context)
 
 
@@ -20,7 +21,7 @@ def group_posts(request, slug):
     context = {
         'group': group,
     }
-    context.update(get_page_context(request, group.posts.all()))
+    context.update(get_page_context(request, group.posts.all(), POSTS_NUMBER))
     return render(request, 'posts/group_list.html', context)
 
 
@@ -31,7 +32,7 @@ def profile(request, username):
         'author': author,
         'author_total_posts': author_total_posts,
     }
-    context.update(get_page_context(request, author.posts.all()))
+    context.update(get_page_context(request, author.posts.all(), POSTS_NUMBER))
     return render(request, 'posts/profile.html', context)
 
 
@@ -64,15 +65,14 @@ def post_create(request):
 def post_edit(request, post_id):
     is_edit = True
     post = get_object_or_404(Post, id=post_id)
-    if post.author == request.user:
-        form = PostForm(request.POST or None, instance=post)
-        if form.is_valid():
-            post = form.save()
-            return redirect(reverse('posts:post_detail',
-                                    kwargs={'post_id': post_id}))
-        form = PostForm(instance=post)
-        return render(request, 'posts/create_post.html',
-                      {'form': form, 'is_edit': is_edit, 'post': post})
-    else:
+    form = PostForm(request.POST or None, instance=post)
+    if post.author != request.user:
         return redirect(reverse('posts:profile',
                                 kwargs={'username': request.user}))
+    if form.is_valid():
+        post = form.save()
+        return redirect(reverse('posts:post_detail',
+                        kwargs={'post_id': post_id}))
+    form = PostForm(instance=post)
+    return render(request, 'posts/create_post.html',
+                  {'form': form, 'is_edit': is_edit, 'post': post})
