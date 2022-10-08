@@ -12,8 +12,8 @@ POSTS_NUMBER = 10
 
 def index(request):
     posts = Post.objects.all()
-    context = get_page_context(request, posts, POSTS_NUMBER)
-    return render(request, 'posts/index.html', context)
+    page_context = get_page_context(request, posts, POSTS_NUMBER)
+    return render(request, 'posts/index.html', {'page_obj': page_context})
 
 
 def group_posts(request, slug):
@@ -21,7 +21,8 @@ def group_posts(request, slug):
     context = {
         'group': group,
     }
-    context.update(get_page_context(request, group.posts.all(), POSTS_NUMBER))
+    page_context = get_page_context(request, group.posts.all(), POSTS_NUMBER)
+    context.update({'page_obj': page_context})
     return render(request, 'posts/group_list.html', context)
 
 
@@ -32,7 +33,8 @@ def profile(request, username):
         'author': author,
         'author_total_posts': author_total_posts,
     }
-    context.update(get_page_context(request, author.posts.all(), POSTS_NUMBER))
+    page_context = get_page_context(request, author.posts.all(), POSTS_NUMBER)
+    context.update({'page_obj': page_context})
     return render(request, 'posts/profile.html', context)
 
 
@@ -73,6 +75,5 @@ def post_edit(request, post_id):
         post = form.save()
         return redirect(reverse('posts:post_detail',
                         kwargs={'post_id': post_id}))
-    form = PostForm(instance=post)
     return render(request, 'posts/create_post.html',
                   {'form': form, 'is_edit': is_edit, 'post': post})
