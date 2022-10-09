@@ -31,7 +31,7 @@ class PostURLTests(TestCase):
         # Создаем неавторизованный клиент
         self.guest_client = Client()
         # Создаем авторизованый клиент
-        self.user = User.objects.create_user(username='HasNoName')
+        self.user = User.objects.get(username='auth')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
@@ -60,7 +60,7 @@ class PostURLTests(TestCase):
     
     def test_post_edit_for_authorized(self):
         """Страница доступна авторизованному пользователю."""
-        response = self.authorized_client.get('posts/1/edit/')
+        response = self.authorized_client.get('/posts/1/edit/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     
