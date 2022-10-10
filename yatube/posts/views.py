@@ -12,29 +12,32 @@ POSTS_NUMBER = 10
 
 def index(request):
     posts = Post.objects.all()
-    page_context = get_page_context(request, posts, POSTS_NUMBER)
-    return render(request, 'posts/index.html', {'page_obj': page_context})
+    page_obj = get_page_context(request, posts, POSTS_NUMBER)
+    context = {
+        'page_obj': page_obj,
+    }
+    return render(request, 'posts/index.html', context)
 
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
+    page_obj = get_page_context(request, group.posts.all(), POSTS_NUMBER)
     context = {
         'group': group,
+        'page_obj': page_obj,
     }
-    page_context = get_page_context(request, group.posts.all(), POSTS_NUMBER)
-    context.update({'page_obj': page_context})
     return render(request, 'posts/group_list.html', context)
 
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     author_total_posts = Post.objects.filter(author_id=author.pk).count()
+    page_obj = get_page_context(request, author.posts.all(), POSTS_NUMBER)
     context = {
         'author': author,
         'author_total_posts': author_total_posts,
+        'page_obj': page_obj,
     }
-    page_context = get_page_context(request, author.posts.all(), POSTS_NUMBER)
-    context.update({'page_obj': page_context})
     return render(request, 'posts/profile.html', context)
 
 
